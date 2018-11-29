@@ -87,29 +87,32 @@ def drawVanillaGraph(graph, pos):
     plt.show()
 
 #### refurbish:
-#### 	convert old_graph into reduced graph consisting of states
-def refurbish(old_graph,loc_Lucky,loc_Rocket):
+#### 	convert old_graph into DAG consisting of directed state nodes
+####    states represent Rocket and Lucky's location on the game board
+####    states are represented as State named tuple where 
+####    astronaut locations are denoted as  0=A, 1=B, ..., 26=AA, 27=end
+def refurbish(old_graph,solLoc,loc_Lucky,loc_Rocket):
     G=nx.DiGraph()
-    check_points=[]
+    check_points=[[-1 for i in range(solLoc+1)] for j in range(solLoc+1)]
     
     def check(state,next_node,isL):
         if isL:
             if old_graph.edges()[(state[0],next_node)]['color']==old_graph.nodes()[state[1]]['color']:
                 next_state=State(next_node,state[1])
                 G.add_node(next_state)
-                if next_state not in check_points: G.add_edge(state,next_state)
+                if check_points[next_state[0]][next_state[1]]==-1: G.add_edge(state,next_state)
                 refurb(next_state)
         else:
             if old_graph.edges()[(state[1],next_node)]['color']==old_graph.nodes()[state[0]]['color']:
                 next_state=State(state[0],next_node)
                 G.add_node(next_state)
-                if next_state not in check_points: G.add_edge(state,next_state)
+                if check_points[next_state[0]][next_state[1]]==-1: G.add_edge(state,next_state)
                 refurb(next_state)
             
     
     def refurb(state):
-        if state in check_points: return
-        check_points.append(state)
+        if check_points[state[0]][state[1]]!=-1: return
+        check_points[state[0]][state[1]]=state
         for next_left in list(old_graph.adj.items())[state[0]][1]: check(state,next_left,True)  
         for next_right in list(old_graph.adj.items())[state[1]][1]: check(state,next_right,False)
     
@@ -165,22 +168,16 @@ def get_diff(state_list,s):
 #### traverse_bfs_tree:
 ####	traverse tree made by reduced_graph bfs according to networkx bfs predecessor fn
 def traverse_bfs_tree(tree,solnLoc):
-    start=0
-    out=[]
     finished=False
-    for n in tree:
-        if n[0][0]==solnLoc or n[0][1]==solnLoc: 
-            start=tree.index(n)
+    out=[]
+    for i in range(len(tree)):
+        if finished==False and tree[-i-1][0][0] or tree[-i-1][0][1]==solnLoc: 
             finished=True
-    if finished==False: 
-        print('No solution')
-        return
-    out.append(get_diff(tree[start],solnLoc))
-    while(tree[start][1]!=State(L=0,R=1)):
-        for n in tree:
-            if n[0]==tree[start][1]:
-                start=tree.index(n)
-                out.append(get_diff(tree[start],solnLoc))
+            out.append(get_diff(tree[-i-1],solnLoc))
+            index=i
+        if finished==True and tree[-i-1][0]==tree[-index-1][1]:
+            index=i
+            out.append(get_diff(tree[-i-1],solnLoc))
     for i in range(len(out)):
         print(out[-i-1])
 
@@ -195,7 +192,7 @@ def main():
 	# refurbish graph to better fit our needs
 	# our needs are to find if a path exists to 'end' from the starting location
 	# making new graph R(efurbished) U(ltimate) G(raph)
-	RUG=refurbish(corr,0,1)
+	RUG=refurbish(corr,solution_location,0,1)
 	drawRefurbishedGraph(RUG,pos=nx.fruchterman_reingold_layout(RUG))
 	# now print a bfs traversal of the refurbished graph
 	# bfs predecessors and parents stored in y
