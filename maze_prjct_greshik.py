@@ -97,23 +97,6 @@ def refurbish(old_graph,solLoc,loc_Rocket,loc_Lucky):
     
     return G
 
-#### print_node_alpha:
-#### 	returns alpha string of node for ease of reading when 
-####   outputting final path
-def print_node_alpha(num,s):
-	out=""
-	if num==s+1: return 'end'
-	for i in range(int((num-1)/26)+1):
-	    out=out+list(string.ascii_uppercase)[(num-1)%26]
-	    num=num-26
-	return out
-
-#### get_diff:
-#### 	return who moved in bfs parent-child relationship
-def get_diff(state_list,s):
-    if state_list[0][0]==state_list[1][0]: return('L '+str(state_list[0][1]+1)+' # Lucky moves to '+print_node_alpha(state_list[0][1]+1,s))
-    else: return('R '+str(state_list[0][0]+1)+' # Rocket moves to '+print_node_alpha(state_list[0][0]+1,s))
-
 #### traverse_bfs_tree:
 ####	traverse tree made by reduced_graph bfs according to networkx bfs predecessor fn
 def traverse_bfs_tree(tree,solnLoc):
@@ -132,6 +115,25 @@ def traverse_bfs_tree(tree,solnLoc):
             print(out[-i-1])
     else:
         print('No solution')
+
+######## I/O CODE ########
+    
+#### print_node_alpha:
+#### 	returns alpha string of node for ease of reading when 
+####   outputting final path
+def print_node_alpha(num,s):
+	out=""
+	if num==s+1: return 'end'
+	for i in range(int((num-1)/26)+1):
+	    out=out+list(string.ascii_uppercase)[(num-1)%26]
+	    num=num-26
+	return out
+
+#### get_diff:
+#### 	return who moved in bfs parent-child relationship
+def get_diff(state_list,s):
+    if state_list[0][0]==state_list[1][0]: return('L '+str(state_list[0][1]+1)+'\t// Lucky moves to '+print_node_alpha(state_list[0][1]+1,s))
+    else: return('R '+str(state_list[0][0]+1)+'\t// Rocket moves to '+print_node_alpha(state_list[0][0]+1,s))
         
 ######## VISUALIZATION CODE ########
 
