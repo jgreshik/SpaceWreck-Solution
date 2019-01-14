@@ -145,8 +145,6 @@ def drawVanillaGraph(graph, pos):
     plt.style.use(['dark_background'])
     # size of plot
     plt.figure(figsize=(8,8),dpi=100)
-    # set up position of graph items
-    
         
     # draw nodes
     colored_nodes={}
